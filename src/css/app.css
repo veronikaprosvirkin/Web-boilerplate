@@ -3,3 +3,563 @@
 
 /* Reset and normalize */
 @import url('./normalize.css');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.container {
+    margin: 0 auto;
+    max-width: 1200px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* Header styles */
+header {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding-top: 30px;
+}
+
+.header-top, .header-bottom {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+nav ul li a { 
+    text-decoration: none; 
+    color: #f75c49; 
+    font-weight: bold; 
+}
+
+.add-teacher-button {
+    cursor: pointer;
+    height: 50px;
+    width: 170px;
+    background-color: #ffffff;
+    border: 2px solid #f75c49;
+    transition: all 0.3s ease;
+    color: #f75c49;
+    text-align: center;
+}
+
+.add-teacher-button:hover {
+    background-color: #f75c49;
+    color: #ffffff;
+}
+nav ul li a:hover {
+    color: #f75c49;
+    text-decoration: underline;
+}
+
+header form{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+header form input{
+    border: 1px solid #767676;
+    padding: 10px 15px;
+    width: 250px;
+    font-size: 14px;
+    outline: none;
+}
+
+header form button{
+    background-color: #ffffff;
+    color: #f75c49;
+    border: 1px solid #f75c49;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+header form button:hover {
+    background-color: #f75c49;
+    color: #ffffff;
+}
+
+.logo {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 36px;
+    font-weight: bold;
+    text-decoration: none;
+    color: #ffffff; 
+    -webkit-text-stroke: 1px #000000;
+    
+    text-shadow: 
+        1px 1px 0 #f75c49, 
+        2px 2px 0 #f75c49, 
+        3px 3px 0 #f75c49;
+        
+    transition: color 0.3s ease; 
+}
+
+.logo:hover {
+    -webkit-text-stroke: 2px #000000;
+}
+
+/* main content */
+h2 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 28px;
+}
+
+.filters {
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.filters label, .filters select {
+    color: #555555; 
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 1px dotted #767676;
+    padding-left: 15px;
+}
+
+.filter-group:first-child {
+    border-left: none;
+    padding-left: 0;
+}
+
+.teacher-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 30px;
+}
+
+.teacher-card {
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+}
+.teacher-card:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08); 
+}
+
+.teacher-photo{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f99589;
+}
+.teacher-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000000;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+.teacher-specialty {
+    font-size: 14px;
+    color: #767676;
+    margin-bottom: 5px;
+}
+
+.teacher-location {
+    font-size: 12px;
+    color: #000000;
+}
+.initials {
+    height: 150px;
+    width: 150px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #f99589;
+    display: inline-flex;
+    color: #f75c49;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+}
+
+.star-icon {
+    position: absolute;
+    top: -5px;
+    right: 0px;
+    font-size: 32px;
+    color: #ecec02;
+    line-height: 1;
+}
+
+/* statistics table and other sections */
+.statistics-table {
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px; 
+    border-bottom: 1px solid #000;
+    color: #555555; 
+}
+
+.statistics-table th, .statistics-table td {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: left;
+}
+
+.statistics-table th {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.statistics-table th:hover {
+    background-color: #f0f0f0; 
+}
+
+.statistics-table th:hover::after,
+.statistics-table th.sorted::after {
+    content: "";
+    position: absolute;
+    bottom: -1px; 
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #000000;
+}
+
+
+.statistics-table tbody tr:nth-child(even) {
+    background-color: #faf5f5;
+}
+.pagination {
+    display: flex;
+    gap: 15px; 
+    margin-top: 20px;
+}
+.pagination a {
+    text-decoration: none;
+    color: #1a0dab; 
+}
+.pagination a:hover {
+    color: #f75c49;
+    text-decoration: underline;
+}
+
+.pagination a.active {
+    color: #000000;
+    font-weight: bold;
+}
+.pagination span {
+    color: #000000;
+}
+
+/* section favorites */
+.slider-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.favorites-grid {
+    display: flex;
+    gap: 20px;
+}
+.slider-arrow {
+    background: none;
+    border: none;
+    font-size: 40px;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.slider-arrow:hover {
+    color: #f75c49;
+    transform: scale(1.2);
+}
+
+.top-teachers, .statistics, .favorites, .about {
+    margin-top: 50px; 
+}
+
+.top-teachers::before, 
+.statistics::before, 
+.favorites::before, 
+.about::before {
+    content: "";
+    display: block;
+    width: 40%; 
+    height: 1px;
+    background-color: #767676;
+    margin: 50px auto 40px auto;
+}
+
+.about p {
+    color: #555555; 
+    line-height: 1.6; 
+    margin-bottom: 15px;
+    text-align: justify;
+    padding: 0 40px; 
+}
+
+/*footer styles*/
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 0;
+}
+
+footer nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+footer nav ul li a { 
+    text-decoration: none; 
+    color: #f75c49; 
+    font-weight: bold; 
+}
+
+/* Teacher info popup and add teacher popup */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup.active {
+    display: flex;
+}
+
+.teacher-info-popup-container,
+.add-teacher-popup-container {
+    background-color: #ffffff;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: relative;
+}
+
+.popup-header {
+    background-color: #333333;
+    color: #ffffff;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-header h2 {
+    font-size: 18px;
+    margin: 0;
+    color: #ffffff;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.popup-content {
+    padding: 25px;
+    text-align: left;
+}
+
+.teacher-details-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.teacher-info-img {
+    float: left;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f99589;
+    margin-right: 20px;
+    margin-bottom: 15px;
+}
+.name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.popup-content h3 {
+    font-size: 22px;
+    margin-bottom: 5px;
+}
+.popup-content p, .popup-content a {
+    margin-bottom: 5px;
+}
+
+.speciality {
+    color: #767676;
+    margin-bottom: 10px;
+}
+
+.email-link {
+    color: #f75c49;
+    text-decoration: none;
+}
+
+.teacher-description {
+    font-size: 14px;
+    color: #555555;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    text-align: justify;
+}
+
+.star-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #FFD700;
+    cursor: pointer;
+}
+
+.toggle-map {
+    color: #f75c49;
+    font-size: 14px;
+    text-decoration: none;
+    float: left;
+}
+
+.popup-form {
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.popup-form label {
+    font-size: 14px;
+    color: #333333;
+}
+
+.popup-form input[type="text"],
+.popup-form input[type="email"],
+.popup-form input[type="tel"],
+.popup-form input[type="date"],
+.popup-form select,
+.popup-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.popup-form input, 
+.popup-form select, 
+.popup-form textarea {
+    box-sizing: border-box;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.submit-button {
+    background-color: #ffffff;
+    color: #f75c49;
+    border: 2px solid #f75c49;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.submit-button:hover {
+    background-color: #f75c49;
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .header-top, .header-bottom, header form {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filters {
+        flex-wrap: wrap;
+    }
+    .filter-group::before {
+        display: none;
+    }
+    .filter-group {
+        padding-left: 0;
+        border-left: none;
+    }
+    
+    .teacher-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .favorites-grid {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
