@@ -10,6 +10,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: sans-serif;
     background-color: #ffffff;
@@ -289,7 +293,18 @@ h2 {
 .favorites-grid {
     display: flex;
     gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
 }
+.favorites-grid::-webkit-scrollbar {
+    display: none;
+}
+.favorites-grid .teacher-card {
+    flex: 0 0 auto;
+    width: 200px; 
+}
+
 .slider-arrow {
     background: none;
     border: none;
@@ -372,7 +387,8 @@ footer nav ul li a {
     max-width: 90%;
     border-radius: 4px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
+    overflow-y: auto;
+    max-height: 90vh;
     position: relative;
 }
 
@@ -554,7 +570,6 @@ footer nav ul li a {
     }
     
     .favorites-grid {
-        flex-wrap: wrap;
         justify-content: center;
     }
     
