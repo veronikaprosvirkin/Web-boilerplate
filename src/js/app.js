@@ -19,6 +19,7 @@ const regionFilter = document.querySelector('#filter-region');
 const sexFilter = document.querySelector('#sex-filter');
 const photoFilter = document.querySelector('#with-photo-filter');
 const favoriteFilter = document.querySelector('#favorite-filter');
+const teacherList = document.querySelector('.teacher-list');
 
 //popup information
 const popup = document.querySelector('.teacher-info-popup');
@@ -150,16 +151,25 @@ function filterUsers(users, params) {
     });
 }
 
+//rewrite
 function sortUsers(users, key, order = 'asc') {
     return [...users].sort((a, b) => {
-        if (a[key] === b[key]) {
-            return 0;
+        let valA = a[key];
+        let valB = b[key];
+
+        if (valA === undefined || valA === null) return 1;
+        if (valB === undefined || valB === null) return -1;
+
+        if (typeof valA === 'number' && typeof valB === 'number') {
+            return order === 'asc' ? valA - valB : valB - valA;
         }
-        else if (order === 'asc') {
-            return a[key] > b[key] ? 1 : -1;
-        } else {
-            return a[key] < b[key] ? 1 : -1;
+
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            const comparison = valA.localeCompare(valB);
+            return order === 'asc' ? comparison : -comparison;
         }
+
+        return 0;
     });
 }
 
@@ -365,10 +375,10 @@ function renderTeachers(usersArray) {
             ? `<img src="${user.picture_large}" alt="${fullName}" class="teacher-photo">`
             : `<span class="initials">${initials}</span>`;
 
-        const starMarkup = user.favorite ? '<span class="star-icon">★</span>' : '';
+        const starMarkup = `<span class="star-icon ${user.favorite ? 'star-icon_active' : ''}" data-id="${user.id}">${user.favorite ? '★' : '☆'}</span>`;
 
         return `
-            <div class="teacher-card">
+            <div class="teacher-card" data-id="${user.id}">
                 <div class="image-container">
                     ${imageMarkup}
                     ${starMarkup}
@@ -420,10 +430,10 @@ function renderFavorites(usersArray) {
         const imageMarkup = user.picture_large
             ? `<img src="${user.picture_large}" alt="${fullName}" class="teacher-photo">`
             : `<span class="initials">${initials}</span>`;
-         const starMarkup = user.favorite ? '<span class="star-icon">★</span>' : '';
+         const starMarkup = `<span class="star-icon ${user.favorite ? 'star-icon_active' : ''}" data-id="${user.id}">${user.favorite ? '★' : '☆'}</span>`;
 
         return `
-            <div class="teacher-card">
+            <div class="teacher-card" data-id="${user.id}">
                 <div class="image-container">
                     ${imageMarkup}
                     ${starMarkup}
