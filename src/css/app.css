@@ -221,6 +221,12 @@ h2 {
     line-height: 1;
 }
 
+.star-icon, 
+.star-button {
+    cursor: pointer;      
+    user-select: none; 
+}
+
 /* statistics table and other sections */
 .statistics-table {
     width: 100%; 
@@ -544,6 +550,23 @@ footer nav ul li a {
 }
 
 .submit-button:hover {
+    background-color: #f75c49;
+    color: #ffffff;
+}
+.show-more-btn{
+    background-color: #ffffff;
+    color: #f75c49;
+    border: 2px solid #f75c49;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 30px auto 0 auto;
+    display: block;
+}
+
+.show-more-btn:hover {
     background-color: #f75c49;
     color: #ffffff;
 }
