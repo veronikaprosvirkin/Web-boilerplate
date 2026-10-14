@@ -19,6 +19,7 @@ const regionFilter = document.querySelector('#filter-region');
 const sexFilter = document.querySelector('#sex-filter');
 const photoFilter = document.querySelector('#with-photo-filter');
 const favoriteFilter = document.querySelector('#favorite-filter');
+const teacherList = document.querySelector('.teacher-list');
 
 //popup information
 const popup = document.querySelector('.teacher-info-popup');
@@ -36,6 +37,11 @@ const popupAgeSex = popup.querySelector('.age-sex');
 const popupEmail = popup.querySelector('.email-link');
 const popupPhone = popup.querySelector('.phone');
 const popupDescription = popup.querySelector('.teacher-description');
+const showMoreBtn = document.querySelector('.show-more-btn');
+
+// Initializing variables
+let visibleCount = 10;
+let currentFilteredUsers = [];
 
 //scroll functionality
 const scrollAmount = 240;
@@ -111,21 +117,37 @@ function mergeTeachers(users, additionalUsers) {
 }
 
 function isValidUser(user) {
-    if(typeof(user.age) != "number"){
-        return false;
+    return getUserValidationErrors(user).length === 0;
+}
+
+//returning the errors
+function getUserValidationErrors(user) {
+    const errors = [];
+    if(typeof(user.age) != "number" || isNaN(user.age) || user.age < 18 || user.age > 100){
+        errors.push("Incorrect age. Age must be a number between 18 and 100");
     }
-    else if (!user.email.includes("@")){
-        return false;
+    if (!user.email.includes("@")){
+        errors.push("Email must contain @");
     }
-    else if(!isCapitalized(user.full_name) || !isCapitalized(user.gender) 
-        || !isCapitalized(user.city) || !isCapitalized(user.country) || !isCapitalized(user.state)
-        || !isCapitalized(user.note)){
-        return false;
+    if(!isCapitalized(user.full_name)){
+        errors.push("Full name must be capitalized");
     }
-    else if (!/^[0-9\+\-\s\(\)]+$/.test(user.phone)){
-        return false;
+    if(!isCapitalized(user.gender)){
+        errors.push("Gender must be capitalized");
     }
-    return true;
+    if(!isCapitalized(user.city)){
+        errors.push("City must be capitalized");
+    }
+    if(!isCapitalized(user.country)){
+        errors.push("Country must be capitalized");
+    }
+    if(!isCapitalized(user.note)){
+        errors.push("Note must be capitalized");
+    }
+    if (!/^[0-9\+\-\s\(\)]+$/.test(user.phone)){
+        errors.push("Phone number is invalid");
+    }
+    return errors;
 }
 
 //additoinal function
@@ -152,14 +174,22 @@ function filterUsers(users, params) {
 
 function sortUsers(users, key, order = 'asc') {
     return [...users].sort((a, b) => {
-        if (a[key] === b[key]) {
-            return 0;
+        let valA = a[key];
+        let valB = b[key];
+
+        if (valA === undefined || valA === null) return 1;
+        if (valB === undefined || valB === null) return -1;
+
+        if (typeof valA === 'number' && typeof valB === 'number') {
+            return order === 'asc' ? valA - valB : valB - valA;
         }
-        else if (order === 'asc') {
-            return a[key] > b[key] ? 1 : -1;
-        } else {
-            return a[key] < b[key] ? 1 : -1;
+
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            const comparison = valA.localeCompare(valB, undefined, { sensitivity: 'base' });
+            return order === 'asc' ? comparison : -comparison;
         }
+
+        return 0;
     });
 }
 
@@ -204,8 +234,13 @@ searchForm.addEventListener('submit', (event) => {
     }
 });
 
+const popupStarBtn = popup.querySelector('.star-button');
+let currentPopupTeacher = null;
+
 //teacher popups
 function openTeacherPopup(teacher) {
+    currentPopupTeacher = teacher;
+
     popupName.textContent = teacher.full_name; 
     popupImg.src = teacher.picture_large;      
     popupSpeciality.textContent = teacher.course;
@@ -216,8 +251,21 @@ function openTeacherPopup(teacher) {
     popupPhone.textContent = teacher.phone;
     popupDescription.textContent = teacher.note;
 
+    popupStarBtn.textContent = teacher.favorite ? '★' : '☆';
+
     popup.classList.add('active');
 }
+
+popupStarBtn.addEventListener('click', () => {
+    if (!currentPopupTeacher) return;
+
+    currentPopupTeacher.favorite = !currentPopupTeacher.favorite;
+
+    popupStarBtn.textContent = currentPopupTeacher.favorite ? '★' : '☆';
+
+    renderTeachers(finalUsers);
+    renderFavorites(finalUsers);
+});
 
 // Close popup 
 closePopupBtn.addEventListener('click', () => {
@@ -330,7 +378,7 @@ if (filtersContainer) {
                     return ['Germany', 'Switzerland', 'Denmark', 'Spain', 'Finland', 'France', 'United Kingdom', 'Ireland', 'Norway', 'Netherlands', 'Turkey', 'Ukraine', 'Belgium'].includes(country);
                 }
                 if (regionFilter.value === 'Asia') {
-                    return ['Iran', 'Turkey', 'India', 'China'].includes(country); // Туреччину залишаємо в обох, бо вона на межі :)
+                    return ['Iran', 'Turkey', 'India', 'China'].includes(country);
                 }
                 if (regionFilter.value === 'North America') {
                     return ['United States', 'Canada', 'USA'].includes(country);
@@ -338,17 +386,22 @@ if (filtersContainer) {
                 return false;
             });
         }
+        visibleCount = 10;
         renderTeachers(filteredUsers);
+        tableData = filteredUsers;
+        displayTablePage(1);
     });
 }
 
 // Render functions
 function renderTeachers(usersArray) {
+    currentFilteredUsers = usersArray;
     const teacherList = document.querySelector('.teacher-list');
-
     if (!teacherList) return;
 
-    teacherList.innerHTML = usersArray.map((user) => {
+    const visibleTeachers = usersArray.slice(0, visibleCount);
+
+    teacherList.innerHTML = visibleTeachers.map((user) => {
         const fullName = user.full_name || 'Unknown Teacher';
         const course = user.course || 'Unknown course';
         const country = user.country || 'Unknown country';
@@ -365,10 +418,10 @@ function renderTeachers(usersArray) {
             ? `<img src="${user.picture_large}" alt="${fullName}" class="teacher-photo">`
             : `<span class="initials">${initials}</span>`;
 
-        const starMarkup = user.favorite ? '<span class="star-icon">★</span>' : '';
+        const starMarkup = `<span class="star-icon ${user.favorite ? 'star-icon_active' : ''}" data-id="${user.id}">${user.favorite ? '★' : '☆'}</span>`;
 
         return `
-            <div class="teacher-card">
+            <div class="teacher-card" data-id="${user.id}">
                 <div class="image-container">
                     ${imageMarkup}
                     ${starMarkup}
@@ -379,6 +432,14 @@ function renderTeachers(usersArray) {
             </div>
         `;
     }).join('');
+
+    if (showMoreBtn) {
+        if (visibleCount >= usersArray.length) {
+            showMoreBtn.style.display = 'none';
+        } else {
+            showMoreBtn.style.display = 'block';
+        }
+    }
 }
 
 function renderStatistics(usersArray) {
@@ -423,7 +484,7 @@ function renderFavorites(usersArray) {
          const starMarkup = user.favorite ? '<span class="star-icon">★</span>' : '';
 
         return `
-            <div class="teacher-card">
+            <div class="teacher-card" data-id="${user.id}">
                 <div class="image-container">
                     ${imageMarkup}
                     ${starMarkup}
@@ -435,9 +496,81 @@ function renderFavorites(usersArray) {
     }).join('');
 }
 
+//LAB 3
+
+teacherList.addEventListener('click', (event) => {
+    const starEl = event.target.closest('.star-icon');
+    if (starEl) {
+        const starId = starEl.getAttribute('data-id');
+        const targetUser = finalUsers.find(user => user.id === starId);
+
+        if (targetUser) {
+            targetUser.favorite = !targetUser.favorite;
+            renderTeachers(finalUsers);
+            renderFavorites(finalUsers);
+        }
+        return;
+    }
+
+    const cardEl = event.target.closest('.teacher-card');
+    if (cardEl) {
+        const cardId = cardEl.getAttribute('data-id');
+        const clickedTeacher = finalUsers.find(user => user.id === cardId);
+
+        if (clickedTeacher) {
+            openTeacherPopup(clickedTeacher);
+        }
+    }
+});
+
+addTeacherPopup.querySelector('.popup-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const form = event.target;
+    const dobValue = form.querySelector('#dob').value;
+    const birthYear = dobValue ? new Date(dobValue).getFullYear() : null;
+    const calculatedAge = birthYear ? new Date().getFullYear() - birthYear : null;
+
+    const newTeacher = {
+        id: Date.now().toString(),
+        full_name: form.querySelector('#name').value.trim(),
+        course: form.querySelector('#specialty').value,
+        country: form.querySelector('#country').value,
+        city: form.querySelector('#city').value.trim(),
+        email: form.querySelector('#email').value.trim(),
+        phone: form.querySelector('#phone').value.trim(),
+        b_date: dobValue,
+        age: calculatedAge,
+        gender: form.querySelector('input[name="sex"]:checked')?.value || '',
+        bg_color: form.querySelector('#bgcolor').value,
+        note: form.querySelector('#notes').value.trim() || 'Empty',
+        favorite: false
+    };
+
+    const validationErrors = getUserValidationErrors(newTeacher); 
+    if (validationErrors.length > 0) {
+        alert("Validation errors:\n" + validationErrors.join("\n"));
+        return;
+    }
+    finalUsers.unshift(newTeacher);
+    renderTeachers(finalUsers);
+    renderFavorites(finalUsers);
+    tableData = [...finalUsers];
+    displayTablePage(1);
+    addTeacherPopup.classList.remove('active');
+    form.reset();
+});
+
+if (showMoreBtn) {
+    showMoreBtn.addEventListener('click', () => {
+        visibleCount += 10;
+        renderTeachers(currentFilteredUsers);
+    });
+}
+
 renderTeachers(finalUsers);
-displayTablePage(1);
 renderFavorites(finalUsers);
+displayTablePage(1);
 
 console.log("Percentage of femala teachers:", getPercentage(finalUsers, 'gender', 'female') + "%");
 console.log("Percentage of male teachers:", getPercentage(finalUsers, 'gender', 'male') + "%");
