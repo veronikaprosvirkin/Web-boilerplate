@@ -42,6 +42,7 @@ const showMoreBtn = document.querySelector('.show-more-btn');
 // Initializing variables
 let visibleCount = 10;
 let currentFilteredUsers = [];
+let finalUsers = [];
 
 //scroll functionality
 const scrollAmount = 240;
@@ -61,7 +62,7 @@ function formatUser(user) {
     return {
         gender: user.gender,
         title: user.name.title,
-        full_name: `${user.name.first} ${user.name.last}`, // За зразком поле називається full_name, а не name. І я прибрала зайвий пробіл перед $
+        full_name: `${user.name.first} ${user.name.last}`,
         city: user.location.city,
         state: user.location.state,
         country: user.location.country,
@@ -261,6 +262,8 @@ popupStarBtn.addEventListener('click', () => {
     if (!currentPopupTeacher) return;
 
     currentPopupTeacher.favorite = !currentPopupTeacher.favorite;
+    saveFavoritesToStorage();
+
 
     popupStarBtn.textContent = currentPopupTeacher.favorite ? '★' : '☆';
 
@@ -299,12 +302,11 @@ tableHeaders.forEach(th => {
             currentSortOrder = 'asc'; 
         }
 
-        tableData = sortUsers(finalUsers, key, currentSortOrder);
+        tableData = sortUsers(tableData, key, currentSortOrder);
         displayTablePage(1);
     });
 });
 
-const finalUsers = mergeTeachers(randomUserMock, additionalUsers);
 console.log(finalUsers);
 
 // Pagination functionality
@@ -507,7 +509,8 @@ teacherList.addEventListener('click', (event) => {
 
         if (targetUser) {
             targetUser.favorite = !targetUser.favorite;
-            renderTeachers(finalUsers);
+            saveFavoritesToStorage();
+            renderTeachers(currentFilteredUsers);
             renderFavorites(finalUsers);
         }
         return;
@@ -524,7 +527,7 @@ teacherList.addEventListener('click', (event) => {
     }
 });
 
-addTeacherPopup.querySelector('.popup-form').addEventListener('submit', (event) => {
+addTeacherPopup.querySelector('.popup-form').addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const form = event.target;
@@ -553,25 +556,97 @@ addTeacherPopup.querySelector('.popup-form').addEventListener('submit', (event) 
         alert("Validation errors:\n" + validationErrors.join("\n"));
         return;
     }
-    finalUsers.unshift(newTeacher);
-    renderTeachers(finalUsers);
-    renderFavorites(finalUsers);
-    tableData = [...finalUsers];
-    displayTablePage(1);
-    addTeacherPopup.classList.remove('active');
-    form.reset();
+
+    try {
+        const response = await fetch('http://localhost:3000/teachers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newTeacher),
+        });
+
+        if (response.ok) {
+            const savedTeacher = await response.json();
+            
+            finalUsers.unshift(savedTeacher);
+            renderTeachers(finalUsers);
+            renderFavorites(finalUsers);
+            tableData = [...finalUsers];
+            displayTablePage(1);
+            
+            addTeacherPopup.classList.remove('active');
+            form.reset();
+        }
+    } catch (error) {
+        console.error('Error saving teacher to json-server:', error);
+    }
 });
 
+//Edited in lab 4
 if (showMoreBtn) {
-    showMoreBtn.addEventListener('click', () => {
-        visibleCount += 10;
-        renderTeachers(currentFilteredUsers);
+    showMoreBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('https://randomuser.me/api/?results=10&seed=teachers_app_more');
+            const data = await response.json();
+            const newUsers = data.results.map(formatUser);
+            finalUsers = [...finalUsers, ...newUsers];
+            visibleCount += 10;
+            tableData = [...finalUsers];
+            renderTeachers(finalUsers);
+            displayTablePage(currentPage);
+        } catch (error) {
+            console.error('Error fetching more teachers:', error);
+        }
     });
 }
 
-renderTeachers(finalUsers);
-renderFavorites(finalUsers);
-displayTablePage(1);
+//LAB 4
 
-console.log("Percentage of femala teachers:", getPercentage(finalUsers, 'gender', 'female') + "%");
-console.log("Percentage of male teachers:", getPercentage(finalUsers, 'gender', 'male') + "%");
+async function fetchTeachers() {
+    try {
+        const response = await fetch('https://randomuser.me/api/?results=50&seed=teachers_app');
+        const data = await response.json();
+        const users = data.results;
+
+        const mergedApiUsers = mergeTeachers(users, additionalUsers);
+        let savedTeachers = [];
+        try {
+            const localResponse = await fetch('http://localhost:3000/teachers');
+            savedTeachers = await localResponse.json();
+        } catch (e) {
+            console.warn('Could not fetch saved teachers from json-server. Proceeding without them.', e);
+        }
+
+        const uniqueSaved = savedTeachers.filter(st => !mergedApiUsers.some(u => u.id === st.id));
+
+        finalUsers = [...uniqueSaved, ...mergedApiUsers];
+
+        const favoriteIds = loadFavoritesFromStorage();
+        if (favoriteIds.length > 0) {
+            finalUsers.forEach(user => {
+                user.favorite = favoriteIds.includes(user.id);
+            });
+        }
+
+        tableData = [...finalUsers];
+        renderTeachers(finalUsers);
+        renderFavorites(finalUsers);
+        displayTablePage(1);
+
+    } catch (error) {
+        console.error('Error fetching teachers:', error);
+    }
+}
+
+function saveFavoritesToStorage() {
+    const favoriteIds = finalUsers.filter(user => user.favorite).map(user => user.id);
+    localStorage.setItem('favoriteTeachers', JSON.stringify(favoriteIds));
+}
+
+function loadFavoritesFromStorage() {
+    const favoriteIds = JSON.parse(localStorage.getItem('favoriteTeachers')) || [];
+    return favoriteIds;
+}
+
+fetchTeachers();

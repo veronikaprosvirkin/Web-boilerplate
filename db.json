@@ -1,0 +1,19 @@
+{
+  "teachers": [
+    {
+      "id": "2QXyuSiB5co",
+      "full_name": "Дмитро Зважій",
+      "course": "Computer Science",
+      "country": "Ukraine",
+      "city": "Київ",
+      "email": "dm@gmail.com",
+      "phone": "+38012345678",
+      "b_date": "1991-06-20",
+      "age": 35,
+      "gender": "Male",
+      "bg_color": "#f44343",
+      "note": "Empty",
+      "favorite": false
+    }
+  ]
+}
